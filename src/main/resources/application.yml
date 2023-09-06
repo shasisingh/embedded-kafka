@@ -1,0 +1,23 @@
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: com.shashi.kafka.embedded
+    bootstrap-servers: "127.0.0.1:30001"
+  application:
+    name: "embedded-kafka"
+test:
+  topic: "topic1"
+server:
+  port: 9011
+  shutdown: graceful
+management:
+  server:
+    port: 19011
+    ssl:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include : "*"
+
