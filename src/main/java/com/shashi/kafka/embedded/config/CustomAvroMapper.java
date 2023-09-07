@@ -22,6 +22,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 
+import java.util.Locale;
 import java.util.Map;
 
 @Configuration
@@ -107,5 +108,25 @@ public class CustomAvroMapper {
     @Bean
     public KafkaTemplate<String, Customer> kafkaTemplateWithAvro() {
         return new KafkaTemplate<>(producerFactoryWithAvro());
+    }
+
+    @Bean
+    public ConsumerFactory<String, String> consumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "com.shashi.kafka.embedded");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> filterKafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        //messages matching the filter will be discarded
+        factory.setRecordFilterStrategy(record -> record.value().toUpperCase(Locale.ROOT).contains("WORLD"));
+        return factory;
     }
 }
