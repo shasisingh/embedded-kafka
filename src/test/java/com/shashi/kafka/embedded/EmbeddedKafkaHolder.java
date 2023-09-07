@@ -9,15 +9,20 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
 public class EmbeddedKafkaHolder implements BeforeAllCallback, AfterAllCallback {
 
-    private int numberOfBroker;
+    private EmbeddedKafkaBroker embeddedKafka;
+
     private boolean controlledShutdown;
+    private static boolean started;
+
+    private int numberOfBroker;
     private int numberOfPartitions;
     private int[] kafkaPorts;
     private String[] topics;
-    private EmbeddedKafkaBroker embeddedKafka;
-    private static boolean started;
 
-    public EmbeddedKafkaBroker getEmbeddedKafka() {
+    public EmbeddedKafkaBroker INSTANCE() {
+        if (!started) {
+            startWithDefaultBroker();
+        }
         return embeddedKafka;
     }
 
@@ -47,8 +52,11 @@ public class EmbeddedKafkaHolder implements BeforeAllCallback, AfterAllCallback 
         return this;
     }
 
-    public EmbeddedKafkaHolder startWithDefaultBroker() {
-        embeddedKafka = new EmbeddedKafkaBroker(1, false, 2, "topic1", "topic2")
+    public EmbeddedKafkaHolder startWithDefaultBroker(String... topic) {
+        if (topic == null || topic.length == 0) {
+            topic = new String[]{"topic1", "topic2"};
+        }
+        embeddedKafka = new EmbeddedKafkaBroker(1, false, 2, topic)
                 .kafkaPorts(30009)
                 .brokerListProperty("spring.kafka.bootstrap-servers");
         init();
@@ -87,7 +95,7 @@ public class EmbeddedKafkaHolder implements BeforeAllCallback, AfterAllCallback 
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        embeddedKafka.destroy();
+        this.stop();
     }
 
     @Override

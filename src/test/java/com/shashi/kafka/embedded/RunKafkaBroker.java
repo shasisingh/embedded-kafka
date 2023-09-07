@@ -12,7 +12,7 @@ public class RunKafkaBroker  {
                 .controlledShutdown(true)
                 .ports(30001)
                 .start();
-        System.out.println("STARTED AND RUNNING ON => " + kafkaHolder.getEmbeddedKafka().getBrokersAsString());
+        System.out.println("STARTED AND RUNNING ON => " + kafkaHolder.INSTANCE().getBrokersAsString());
        onExitCall();
     }
 
